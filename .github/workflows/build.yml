@@ -1,0 +1,15 @@
+# Build every meter with the SDK and run the conformance suite. WRITTEN BUT NOT ACTIVE: manual start only (add push/pull_request triggers to enable).
+name: build-and-test
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: alfatreze/tau-alpha-meter-sdk, path: sdk }
+      - run: sudo apt-get update && sudo apt-get install -y clang lld python3
+      - run: |
+          for d in */meter.json; do dir=$(dirname "$d"); python3 sdk/tau-meter build "$dir" --out dist; done
+          for f in dist/*.tmeter; do python3 sdk/tau-meter test "$f" --profile shipped --quick; done
